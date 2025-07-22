@@ -4,13 +4,17 @@ const db = require('./db');
 
 // 1. GET / : liste complète
 router.get('/', async (req, res) => {
-  const [rows] = await db.execute('SELECT * FROM films');
+  const [rows] = await db.execute('SELECT * FROM movie');
   res.json(rows);
 });
 
 // 2. GET /:id : film par ID
 router.get('/:id', async (req, res) => {
-  //TODO : ECRIRE LA REQUETE PREPAREE
+   //TODO : ECRIRE LA REQUETE PREPAREE
+  const id=req.params.id;
+  const sql="SELECT * FROM movie WHERE id_movie=?";
+  const [rows]=await db.execute(sql,[id])   
+  
   // const [rows] = 
   if (rows.length === 0) return res.status(404).send('Film non trouvé');
   res.json(rows[0]);
@@ -18,11 +22,18 @@ router.get('/:id', async (req, res) => {
 
 // 3. POST / : ajout d’un film
 router.post('/', async (req, res) => {
-  const { id, titre } = req.body;
-  if (!id || !titre) return res.status(400).send('id et titre requis');
+  const { id_movie, title } = req.body;
+  if (!id_movie || !title) return res.status(400).send('id et titre requis');
 
   try {
     //TODO : ECRIRE LA REQUETE PREPAREE
+    
+
+
+
+
+    
+
     res.status(201).send('Film ajouté');
   } catch (err) {
     res.status(500).send('Erreur : ' + err.message);
@@ -41,7 +52,7 @@ router.patch('/:id', async (req, res) => {
 
 // 5. DELETE /:id : suppression
 router.delete('/:id', async (req, res) => {
-  const [result] = await db.execute('DELETE FROM films WHERE id = ?', [req.params.id]);
+  const [result] = await db.execute('DELETE FROM movie WHERE id = ?', [req.params.id]);
   if (result.affectedRows === 0) return res.status(404).send('Film non trouvé');
   res.send('Film supprimé');
 });
