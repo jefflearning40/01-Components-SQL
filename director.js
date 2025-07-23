@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('./db');
+//const directorSchema = require('./validator/directorSchema'); // Importez le schéma
 
 // 1. GET / : liste complète
 router.get('/', async (req, res) => {
@@ -12,7 +13,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
    //TODO : ECRIRE LA REQUETE PREPAREE
   const id=req.params.id;
-  const sql="SELECT * FROM director WHERE id_director=?";
+  const sql="SELECT * FROM director WHERE id=?";
   const [rows]=await db.execute(sql,[id])   
   
   // const [rows] = 
@@ -26,22 +27,29 @@ router.post('/', async (req, res) => {
 
   const directorSchema = Joi.object({
     name:Joi.string().min(2).required(),
-    firstname:Joi.string().min(2).required(),
+    firstName:Joi.string().min(2).required(),
     birthday: Joi.date(),
     
   });
 
-  // Validation des données
+  // Validation des données fonctionnelle
   const { error, value } = directorSchema.validate(req.body);
   if (error) {
     res.status(400).send("Erreur de validation des données : " + error.details[0].message);
     return;
   }
+  //----------------------------------------------------------------------------
+  // Validation des données a tester pour le validator
+  //  const { error, value } = directorSchema.validate(req.body);
+  // if (error) {
+  //   res.status(400).send("Erreur de validation des données : " + error.details[0].message);
+  //   return;
+  // }
 
   try {
     // Requête préparée avec la clause VALUES
     const sql = 'INSERT INTO director(name, firstname, birthday) VALUES (?, ?, ?)';
-    const values = [value.title, value.releaseDate, value.duration, value.note, value.originCountry, value.id_director];
+    const values = [value.name, value.firstName, value.birthday];
 
     // Exécution de la requête
     await db.execute(sql, values);

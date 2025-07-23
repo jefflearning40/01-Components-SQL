@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('./db');
+//const movieSchema = require('./validator/movieSchema'); // Importez le schéma
 
 // 1. GET / : liste complète
 router.get('/', async (req, res) => {
@@ -33,12 +34,19 @@ router.post('/', async (req, res) => {
     id_director: Joi.number()
   });
 
-  // Validation des données
+  //Validation des données d'origine et fonctionnel
   const { error, value } = movieSchema.validate(req.body);
   if (error) {
     res.status(400).send("Erreur de validation des données : " + error.details[0].message);
     return;
   }
+  //Validation des données a tester pour le validator
+  //  const { error, value } = movieSchema.validate(req.body);
+  // if (error) {
+  //   res.status(400).send("Erreur de validation des données : " + error.details[0].message);
+  //   return;
+  // }
+  //----------------------------------------------------------------------------------
 
   try {
     // Requête préparée avec la clause VALUES
@@ -66,7 +74,7 @@ router.patch('/:id', async (req, res) => {
 
 // 5. DELETE /:id : suppression
 router.delete('/:id', async (req, res) => {
-  const [result] = await db.execute('DELETE FROM films WHERE id = ?', [req.params.id]);
+  const [result] = await db.execute('DELETE FROM movie WHERE id = ?', [req.params.id]);
   if (result.affectedRows === 0) return res.status(404).send('Film non trouvé');
   res.send('Film supprimé');
 });
@@ -86,7 +94,7 @@ router.patch('/:id', async (req, res) => {
 
 // 5. DELETE /:id : suppression
 router.delete('/:id', async (req, res) => {
-  const [result] = await db.execute('DELETE FROM movie WHERE id = ?', [req.params.id]);
+  const [result] = await db.execute('DELETE FROM movie WHERE id_movie = ?', [req.params.id]);
   if (result.affectedRows === 0) return res.status(404).send('Film non trouvé');
   res.send('Film supprimé');
 });
