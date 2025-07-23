@@ -4,7 +4,7 @@ const db = require('./db');
 
 // 1. GET / : liste complète
 router.get('/', async (req, res) => {
-  const [rows] = await db.execute('SELECT * FROM movie');
+  const [rows] = await db.execute('SELECT * FROM director');
   res.json(rows);
 });
 
@@ -12,29 +12,27 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
    //TODO : ECRIRE LA REQUETE PREPAREE
   const id=req.params.id;
-  const sql="SELECT * FROM movie WHERE id_movie=?";
+  const sql="SELECT * FROM director WHERE id_director=?";
   const [rows]=await db.execute(sql,[id])   
   
   // const [rows] = 
-  if (rows.length === 0) return res.status(404).send('Film non trouvé');
+  if (rows.length === 0) return res.status(404).send('director non trouvé');
   res.json(rows[0]);
 });
 
-// 3. POST / : ajout d’un film
+// 3. POST / : ajout d’un director
 router.post('/', async (req, res) => {
   const Joi = require("joi");
 
-  const movieSchema = Joi.object({
-    title: Joi.string().min(2).required(),
-    releaseDate: Joi.date(),
-    duration: Joi.number().integer().min(1),
-    note: Joi.number().integer().min(1).max(10),
-    originCountry: Joi.string().alphanum().min(2).required(),
-    id_director: Joi.number()
+  const directorSchema = Joi.object({
+    name:Joi.string().min(2).required(),
+    firstname:Joi.string().min(2).required(),
+    birthday: Joi.date(),
+    
   });
 
   // Validation des données
-  const { error, value } = movieSchema.validate(req.body);
+  const { error, value } = directorSchema.validate(req.body);
   if (error) {
     res.status(400).send("Erreur de validation des données : " + error.details[0].message);
     return;
@@ -42,12 +40,12 @@ router.post('/', async (req, res) => {
 
   try {
     // Requête préparée avec la clause VALUES
-    const sql = 'INSERT INTO movie(title, releaseDate, duration, note, originCountry, id_director) VALUES (?, ?, ?, ?, ?, ?)';
+    const sql = 'INSERT INTO director(name, firstname, birthday) VALUES (?, ?, ?)';
     const values = [value.title, value.releaseDate, value.duration, value.note, value.originCountry, value.id_director];
 
     // Exécution de la requête
     await db.execute(sql, values);
-    res.status(201).send('Film ajouté');
+    res.status(201).send('director ajouté');
   } catch (err) {
     res.status(500).send('Erreur : ' + err.message);
   }
@@ -56,19 +54,19 @@ router.post('/', async (req, res) => {
 
 // 4. PATCH /:id : modification du titre
 router.patch('/:id', async (req, res) => {
-  const { titre } = req.body;
-  if (!titre) return res.status(400).send('Nouveau titre requis');
+  const { name } = req.body;
+  if (!name) return res.status(400).send('Nouveau nom requis');
     
   //TODO : ECRIRE LA REQUETE PREPAREE
-  if (result.affectedRows === 0) return res.status(404).send('Film non trouvé');
-  res.send('Titre mis à jour');
+  if (result.affectedRows === 0) return res.status(404).send('director non trouvé');
+  res.send('nom mis à jour');
 });
 
 // 5. DELETE /:id : suppression
 router.delete('/:id', async (req, res) => {
-  const [result] = await db.execute('DELETE FROM films WHERE id = ?', [req.params.id]);
-  if (result.affectedRows === 0) return res.status(404).send('Film non trouvé');
-  res.send('Film supprimé');
+  const [result] = await db.execute('DELETE FROM director WHERE id = ?', [req.params.id]);
+  if (result.affectedRows === 0) return res.status(404).send('director non trouvé');
+  res.send('director supprimé not killed !');
 });
 
 module.exports = router;
